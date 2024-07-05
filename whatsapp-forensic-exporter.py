@@ -43,7 +43,10 @@ def export_data(start_keyword, end_keyword, start_date, end_date, phone_number, 
         WHEN m.ZTOJID LIKE '%@g.us' THEN REPLACE(m.ZTOJID, '@g.us', ' (Group)')
         ELSE REPLACE(m.ZTOJID, '@s.whatsapp.net', '')
       END AS receiver_number,
-      m.ZTEXT AS message_text,
+      CASE
+        WHEN m.ZMEDIAITEM IS NOT NULL THEN  COALESCE(m.ZTEXT,'') || 'Attachment:' || mi.ZVCARDNAME
+        ELSE m.ZTEXT
+      END AS message_text,
       CASE
         WHEN m.ZFROMJID IS NULL THEN 'OUT'
         ELSE 'IN'
@@ -52,6 +55,7 @@ def export_data(start_keyword, end_keyword, start_date, end_date, phone_number, 
       ZWAMESSAGE m
       LEFT JOIN ZWAPROFILEPUSHNAME pn_from ON pn_from.ZJID = m.ZFROMJID
       LEFT JOIN ZWAPROFILEPUSHNAME pn_to ON pn_to.ZJID = m.ZTOJID
+      LEFT JOIN ZWAMEDIAITEM mi ON m.ZMEDIAITEM = mi.Z_PK
       INNER JOIN KeywordRange kr ON m.Z_PK BETWEEN kr.min_pk AND kr.max_pk
     WHERE
       datetime(m.ZMESSAGEDATE + 978307200, 'unixepoch') >= ?
@@ -60,6 +64,8 @@ def export_data(start_keyword, end_keyword, start_date, end_date, phone_number, 
     ORDER BY
       message_date ASC;
     """
+
+
     df = pd.read_sql_query(query, conn, params=(start_date, end_date, phone_number, phone_number))
 
     # Close the database connection
@@ -68,7 +74,6 @@ def export_data(start_keyword, end_keyword, start_date, end_date, phone_number, 
     if obfuscate_number:
         df['sender_number'] = df['sender_number'].apply(lambda x: str(int(x))[:2] + '*' * (len(str(int(x))) - 4) + str(int(x))[-2:] if pd.notnull(x) and x != '' else x)
         df['receiver_number'] = df['receiver_number'].apply(lambda x: str(int(x))[:2] + '*' * (len(str(int(x))) - 4) + str(int(x))[-2:] if pd.notnull(x) and x != '' else x)
-
 
     # Export the DataFrame to a CSV file
     if csv_path:
