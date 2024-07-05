@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "whatsapp-forensic-exporter"
+version = "1.0.0"
+description = "A command-line tool for exporting WhatsApp data from a SQLite database"
+authors = ["Francesco de Lorenzi <francesco@delorenzi.me>"]
+license = "MIT"
+package-mode = false
+
+[tool.poetry.dependencies]
+python = "^3.8"
+pandas = "^2.0.3"
+reportlab = "^3.5.68"
+tabulate = "^0.9.0"
+numpy = "^1.24.0"
+
+[tool.poetry.dev-dependencies]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
