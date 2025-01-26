@@ -7,8 +7,8 @@ A command-line tool for exporting WhatsApp data from a SQLite database.
 The project is not affiliated, associated, authorized, endorsed by, or in any way officially connected with the WhatsApp LLC, or any of its subsidiaries or its affiliates. The official WhatsApp LLC website can be found at https://www.whatsapp.com/.
 
 ## Supported Platforms
-
-- iOS backups (currently supported)
+- iOS backups
+- Whatsapp Web Takeout via [ZAPiXWEB](https://github.com/kraftdenker/ZAPiXWEB)
 - Android (planned for the future)
 
 ## Installation
@@ -34,7 +34,7 @@ poetry install
 To use the tool, run the following command:
 
 ```
-poetry run python whatsapp-forensic-exporter.py --start-keyword "hello" --end-keyword "good night" --start-date "2023-05-12 00:00:00" --end-date "2023-05-13 23:59:59" --phone-number "15553332211" --db-path "chatstorage.db" --csv-path "output.csv" --pdf-path "output.pdf" --ascii-table --obfuscate-number
+poetry run python whatsapp-forensic-exporter.py --start-keyword "hello" --end-keyword "good night" --start-date "2023-05-12 00:00:00" --end-date "2023-05-13 23:59:59" --phone-number "15553332211" --format ios --db-path "ChatStorage.db" --csv-path "output.csv" --pdf-path "output.pdf" --ascii-table --obfuscate-number
 ```
 
 Replace the values in the command with your desired settings. The tool will export the data to the specified CSV and PDF files, and also output the data as an ASCII table. The `--obfuscate-number` option will obfuscate the phone number in the output.
@@ -52,6 +52,18 @@ The `--csv-path` option specifies the path to the output CSV file, the `--pdf-pa
 To view the help message, run the script with the `-h` or `--help` option:
 The help message will display the available options and their descriptions.
 
+## Whatsapp Web Takeout
+
+To export chat data from WhatsApp Web, you can use the forensic tool [ZAPiXWEB](https://github.com/kraftdenker/ZAPiXWEB) to generate a takeout of your desired chat conversations.
+After obtaining the exported data, locate the JSON file corresponding to the chat you wish to extract (e.g., `Chat 15556662211@c.us.json`). 
+
+To initiate the export using this JSON file, execute the following command:
+
+```bash
+poetry run python whatsapp-forensic-exporter.py --start-date "2023-05-12 00:00:00" --end-date "2023-05-13 23:59:59" --phone-number "15556662211" --format web --json-path "Chat 15556662211@c.us.json" --pdf-path "output.pdf"
+```
+
+Replace the command parameters with your specific settings. This process will export the chat data within the defined date range and save it to the specified PDF file.
 
 ## Contributing
 

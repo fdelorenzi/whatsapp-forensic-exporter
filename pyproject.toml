@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "whatsapp-forensic-exporter"
-version = "1.0.0"
-description = "A command-line tool for exporting WhatsApp data from a SQLite database"
+version = "1.1.0"
+description = "A command-line forensic tool for exporting WhatsApp data"
 authors = ["Francesco de Lorenzi <francesco@delorenzi.me>"]
 license = "MIT"
 package-mode = false
