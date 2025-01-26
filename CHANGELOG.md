@@ -1,6 +1,6 @@
 # Changelog
 
-## [1.1.0] - TBD
+## [1.1.0] - 2025-01-26
 ### Added
 - Introduced support for exporting messages in JSON format, specifically targeting WhatsApp Web via ZAPiXWEB.
 

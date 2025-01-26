@@ -54,12 +54,6 @@ The help message will display the available options and their descriptions.
 
 ## Whatsapp Web Takeout
 
-Certainly! Here's an improved version of the paragraph about WhatsApp Web takeout:
-
----
-
-## WhatsApp Web Takeout
-
 To export chat data from WhatsApp Web, you can use the forensic tool [ZAPiXWEB](https://github.com/kraftdenker/ZAPiXWEB) to generate a takeout of your desired chat conversations.
 After obtaining the exported data, locate the JSON file corresponding to the chat you wish to extract (e.g., `Chat 15556662211@c.us.json`). 
 
@@ -70,6 +64,7 @@ poetry run python whatsapp-forensic-exporter.py --start-date "2023-05-12 00:00:0
 ```
 
 Replace the command parameters with your specific settings. This process will export the chat data within the defined date range and save it to the specified PDF file.
+
 ## Contributing
 
 Contributions are welcome! Please open an issue or submit a pull request on GitHub.
