@@ -1,6 +1,6 @@
 # WhatsApp Forensic Exporter
 
-A command-line tool for exporting WhatsApp data from a SQLite database.
+A command-line tool for exporting WhatsApp data from SQLite databases and WhatsApp Web takeouts.
 
 ## Disclaimer
 
