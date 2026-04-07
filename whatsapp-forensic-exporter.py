@@ -1,7 +1,7 @@
 import argparse
 from exporter.exporter import ForensicExporter
 
-VERSION='1.1.0'
+VERSION='1.2.0'
 APP_NAME = 'WhatsApp Forensic Exporter'
 
 def parse_args():
@@ -36,8 +36,16 @@ def parse_args():
     output_group.add_argument('--pdf-path', type=str, help='Path to save the output as a PDF file')
     output_group.add_argument('--ascii-table', action='store_true', help='Print the dataset as an ASCII table')
 
-    # Optional argument for obfuscation
-    parser.add_argument('--obfuscate-number', action='store_true', help='Obfuscate phone numbers in the output')
+    # Optional argument for media base directory (for embedding images in PDF)
+    parser.add_argument('--media-path', type=str, help='Base directory containing media attachments for PDF image embedding')
+
+    # Report language
+    parser.add_argument('--language', type=str, choices=['en', 'es', 'fr', 'pt', 'de', 'it'], default='en',
+                        help='Report language ISO code (default: en). Supported: en, es, fr, pt, de, it')
+
+    # Optional arguments for obfuscation
+    parser.add_argument('--obfuscate-number', action='store_true', help='Obfuscate counterpart phone numbers and matching names in the output')
+    parser.add_argument('--obfuscate-me', action='store_true', help='Additionally obfuscate the subject phone number specified by --phone-number')
 
     return parser.parse_args()
 
@@ -62,7 +70,10 @@ if __name__ == '__main__':
         pdf_path=args.pdf_path,
         ascii_table=args.ascii_table,
         obfuscate_number=args.obfuscate_number,
-        version=VERSION
+        version=VERSION,
+        media_path=args.media_path,
+        language=args.language,
+        obfuscate_me=args.obfuscate_me
     )
 
     # Execute data export
