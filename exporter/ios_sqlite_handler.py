@@ -4,6 +4,42 @@ from datetime import datetime
 from typing import List
 from exporter.message_dto import MessageDTO
 
+# iOS WhatsApp ZMESSAGETYPE integer to media_type string mapping
+_IOS_MESSAGE_TYPE_MAP = {
+    1: 'image',
+    2: 'video',
+    3: 'ptt',
+    8: 'document',
+}
+
+# Fallback: derive media_type from ZVCARDSTRING (MIME type) in ZWAMEDIAITEM
+# when ZMESSAGETYPE is not in the map (e.g., stickers, newer types)
+_MIME_PREFIX_TO_MEDIA_TYPE = {
+    'image/webp': 'sticker',
+    'image/': 'image',
+    'video/': 'video',
+    'audio/': 'ptt',
+    'application/': 'document',
+}
+
+
+def _resolve_media_type(message_type_id, mime_type):
+    """Resolve media_type from ZMESSAGETYPE first, falling back to ZVCARDSTRING MIME type."""
+    result = _IOS_MESSAGE_TYPE_MAP.get(message_type_id)
+    if result:
+        return result
+
+    if not mime_type or not isinstance(mime_type, str):
+        return None
+
+    mime_lower = mime_type.strip().lower()
+    # Check specific MIME types first (e.g., image/webp → sticker)
+    for mime_key, media_type in _MIME_PREFIX_TO_MEDIA_TYPE.items():
+        if mime_lower.startswith(mime_key):
+            return media_type
+    return None
+
+
 class IOSSQLiteHandler:
     def __init__(self, db_path):
         self.db_path = db_path
@@ -37,14 +73,14 @@ class IOSSQLiteHandler:
             WHEN m.ZTOJID LIKE '%@g.us' THEN REPLACE(m.ZTOJID, '@g.us', ' (Group)')
             ELSE REPLACE(m.ZTOJID, '@s.whatsapp.net', '')
           END AS receiver_number,
-          CASE
-            WHEN m.ZMEDIAITEM IS NOT NULL THEN COALESCE(m.ZTEXT,'') || 'Attachment:' || mi.ZVCARDNAME
-            ELSE m.ZTEXT
-          END AS message_text,
+          COALESCE(m.ZTEXT, '') AS message_text,
           CASE
             WHEN m.ZFROMJID IS NULL THEN 'OUT'
             ELSE 'IN'
-          END AS message_direction
+          END AS message_direction,
+          mi.ZMEDIALOCALPATH AS media_local_path,
+          m.ZMESSAGETYPE AS message_type_id,
+          mi.ZVCARDSTRING AS media_mime_type
         FROM
           ZWAMESSAGE m
           LEFT JOIN ZWAPROFILEPUSHNAME pn_from ON pn_from.ZJID = m.ZFROMJID
@@ -71,7 +107,9 @@ class IOSSQLiteHandler:
                 sender_number=row['sender_number'],
                 receiver_number=row['receiver_number'],
                 message_text=row['message_text'],
-                message_direction=row['message_direction']
+                message_direction=row['message_direction'],
+                media_type=_resolve_media_type(row['message_type_id'], row.get('media_mime_type')),
+                media_path=row['media_local_path'] if pd.notna(row.get('media_local_path')) else None,
             ) for index, row in df.iterrows()
         ]
 
